@@ -1,0 +1,744 @@
+{
+  "master_project_summary": {
+    "overview": {
+      "project_family": "OLM Pipeline Evolution - Frozen VAE Latent Dynamics",
+      "base_version": "1.0.0+",
+      "summary": "Collection of experimental branches exploring different approaches to video state extraction, object manipulation, and latent space control using frozen VAE and LSTM architectures",
+      "common_foundation": "Frozen Stable Diffusion VAE + three-stage LSTM (Pattern/Compression/Central) architecture",
+      "project_evolution": "Started as Object-Level Manipulation (OLM) pipeline, evolved through multiple experimental branches including MoE integration, CLIP guidance, cursor manipulation, latent signatures, and pose-driven animation"
+    },
+
+    "rollback_branches": [
+      {
+        "branch_name": "default",
+        "version": "1.0.0",
+        "status": "Baseline - First Functioning OLM Model",
+        "description": "Original functioning OLM pipeline with frozen VAE and three-stage LSTM architecture",
+        "key_features": [
+          "Frozen VAE with posterior mean encoding",
+          "PatternLSTM (512 hidden, 16 buffer) for temporal aggregation",
+          "CompressionLSTM (256 compressed dim) for pattern compression",
+          "CentralLSTM (512 hidden, 3 layers) for Δz prediction",
+          "Step controller scaling for motion handling",
+          "Comprehensive telemetry and metrics system"
+        ],
+        "performance": {
+          "one_step_psnr": "25-26 dB",
+          "one_step_ssim": "~0.99",
+          "5_step_psnr": "17.6-18.4 dB",
+          "10_step_psnr": "16.1-17.0 dB"
+        },
+        "unique_experiments": [
+          "Magnitude matching loss failure (reverted due to noise/spikes)",
+          "CLIP integration success with motion gating"
+        ]
+      },
+
+      {
+        "branch_name": "MoE_init_upgrade",
+        "version": "1.0.0",
+        "status": "MoE Integration Attempt",
+        "description": "Attempted Mixture of Experts upgrade to baseline architecture - not fully documented in summary",
+        "key_features": [
+          "Same baseline architecture as default",
+          "MoE integration experiments (details in experimental_notes)"
+        ],
+        "distinction": "Experimental MoE modifications to base OLM pipeline"
+      },
+
+      {
+        "branch_name": "MOE_failure",
+        "version": "1.0.0",
+        "status": "Failed MoE Experiment",
+        "description": "Documented failure of Mixture of Experts approach",
+        "key_features": [
+          "Baseline architecture maintained",
+          "MoE experiments documented in experimental_notes"
+        ],
+        "distinction": "Documents unsuccessful MoE integration attempts and lessons learned"
+      },
+
+      {
+        "branch_name": "CLIP_Working_init & clip_working_base",
+        "version": "1.0.0",
+        "status": "CLIP Integration Success",
+        "description": "Successfully integrated CLIP guidance with motion gating",
+        "key_features": [
+          "Baseline architecture",
+          "CLIP loss folded into main training loop",
+          "Motion gating: CLIP only applies during calm frames (delta_ratio < 2.0 or motion below p70)",
+          "Velocity direction loss (λ_dir = 0.03)",
+          "Reduced delta_scale_r_max from 3.0 to 2.0"
+        ],
+        "unique_contribution": {
+          "clip_motion_gating": "Prevents semantic nudges during heavy motion",
+          "unified_training": "Single training step eliminates gradient conflicts",
+          "pastel_drift_fix": "Motion gating reduces artifacts during dynamic scenes"
+        },
+        "distinction": "Successful CLIP integration branch with motion-aware semantic guidance"
+      },
+
+      {
+        "branch_name": "Boundry_init_working_screencap",
+        "version": "1.0.0",
+        "status": "Desktop Capture & Cursor Experiments",
+        "description": "Enhanced with desktop capture and comprehensive cursor latent analysis",
+        "key_features": [
+          "Baseline architecture",
+          "Desktop capture mode with cursor visualization",
+          "Cursor latent capture system (3s countdown, 20-frame sequences)",
+          "Black dot cursor overlay for latent space analysis",
+          "Latent_captures/ directory with .npz exports"
+        ],
+        "cursor_latent_analysis": {
+          "successful_isolation": "5-pixel cursor successfully detected in latent space",
+          "signal_strength": "Strong negative signals (-1.6 to -1.9) indicating cursor presence",
+          "spatial_mapping": "Clear correspondence between pixel and latent space movement",
+          "vae_sensitivity": "Proven VAE encodes small visual changes with localized responses"
+        },
+        "distinction": "First successful cursor latent isolation and tracking experiments"
+      },
+
+      {
+        "branch_name": "Swap_claude_stable_non_functional",
+        "version": "1.0.0 + Swap Attempts",
+        "status": "Latent Swap Development - Multiple Iterations",
+        "description": "Extensive cursor swap development with surgical improvements and comprehensive debugging",
+        "key_features": [
+          "Baseline architecture",
+          "Advanced latent swap system with template matching",
+          "Surgical bbox improvements (edge-safe clamping, asymmetric kernels)",
+          "Ridge-fit template scaling",
+          "Receptive field-aware writing (9x9 patch + halo)",
+          "Post-decode ROI verification with SSIM",
+          "Comprehensive 3-space logging (pixel→latent→bbox)"
+        ],
+        "swap_evolution": [
+          {
+            "phase": "Initial Template Matching",
+            "approach": "Basic template detection and replacement",
+            "issues": "Poor detection accuracy, background dependency"
+          },
+          {
+            "phase": "Surgical Improvements",
+            "enhancements": [
+              "Edge-safe bbox with exclusive max clamping",
+              "Asymmetric kernels for boundary cases (7x11, 11x7)",
+              "Larger 9x9 patches with halo effect",
+              "Stronger alpha policy (0.9 core, 0.3 halo)",
+              "Ridge regression template scaling",
+              "Temporal sub-pixel interpolation"
+            ]
+          },
+          {
+            "phase": "Cursor Mapping Fixes",
+            "solutions": [
+              "Dynamic scale factors (sx≈0.244, sy=0.25 for 262×256 input)",
+              "Center-aligned bbox calculation",
+              "Local refinement with SSD search (±1 radius)",
+              "Minimal blend approach with cosine feather"
+            ]
+          }
+        ],
+        "latent_cluster_monitoring": {
+          "implementation": "Real-time UMAP/t-SNE/PCA visualization",
+          "features": [
+            "500-sample deque buffers with thread safety",
+            "Cluster centroid and separation metrics",
+            "Export to .npz for offline analysis",
+            "Performance optimization (throttled to every 5th frame)"
+          ]
+        },
+        "final_assessment": {
+          "status": "FAILURE - Template-based approach abandoned",
+          "root_cause": "VAE latent space (64×64) insufficient resolution for precise cursor localization",
+          "lessons": [
+            "Template matching unreliable due to background context dependency",
+            "5-pixel cursor signal overwhelmed by background variations",
+            "Extensive engineering cannot overcome architectural limitations"
+          ]
+        },
+        "distinction": "Most comprehensive cursor manipulation attempt with detailed failure analysis"
+      },
+
+      {
+        "branch_name": "swap_failure",
+        "version": "1.0.0 + Failed Swap",
+        "status": "Documented Swap Failure",
+        "description": "Continuation of swap experiments with additional failure documentation",
+        "key_features": [
+          "All features from Swap_claude_stable_non_functional",
+          "Additional experimental iterations"
+        ],
+        "distinction": "Extended swap failure documentation and alternative approach exploration"
+      },
+
+      {
+        "branch_name": "latent_map_working_simple",
+        "version": "1.1.0",
+        "status": "Advanced Clustering System",
+        "description": "Added comprehensive cluster lifecycle management and interactive testing",
+        "key_features": [
+          "Baseline architecture",
+          "Advanced clustering with lifecycle states (provisional → promoted → retired)",
+          "CID minting: monotonic integers + SHA1 fingerprints",
+          "Multi-metric promotion (age ≥5s, size ≥50, silhouette ≥0.20, etc.)",
+          "Concept_bank/ persistence with versioned JSONL",
+          "Pygame interactive testing (black square on white background)",
+          "Enhanced visualization with lifecycle-based colors"
+        ],
+        "pygame_testing": {
+          "controls": "Spacebar (10x growth), arrows (10px movement), R (reset)",
+          "purpose": "Study VAE response to controlled geometric stimuli",
+          "stability": "GIL threading issues resolved"
+        },
+        "distinction": "First successful cluster lifecycle and interactive testing implementation"
+      },
+
+      {
+        "branch_name": "latent_pose_failed_needs more resarch",
+        "version": "1.3.0",
+        "status": "Pose-Driven Animation System (Testing Phase)",
+        "description": "Complete MediaPipe-based pose-driven animation with neural integration",
+        "evolution_note": "Project pivoted from failed OLM to successful pose animation platform",
+        "key_features": [
+          "Baseline architecture maintained",
+          "MediaPipe Pose (33 keypoints) + Selfie Segmentation",
+          "PoseEmbeddingMLP: 66→256→128 with GELU + LayerNorm",
+          "ResidualLSTM head (64 hidden) for temporal consistency",
+          "Ridge regression calibration (A = argmin ||Δz - Ae||² + λ||A||²)",
+          "Delaunay triangulation for skeletal warping",
+          "Course-keeping with 10-pixel deviation threshold"
+        ],
+        "pose_animation_workflow": {
+          "calibration": [
+            "Collect pose keypoints from camera/desktop/pygame",
+            "Store pose delta and latent delta pairs",
+            "Fit ridge regression matrix A (λ=1e-3, min 5 samples)"
+          ],
+          "animation": [
+            "Detect pose → compute embedding",
+            "Apply calibrated matrix A → get latent delta",
+            "Add LSTM residual correction",
+            "Apply skeletal warping + background blending"
+          ]
+        },
+        "gui_integration": {
+          "enable_toggle": "Checkbox for pose-drive mode",
+          "capture_sources": "Radio buttons: camera | desktop | pygame",
+          "calibration_controls": "Start/stop with automatic fitting",
+          "status_display": "Real-time feedback on calibration state"
+        },
+        "project_conclusion": {
+          "olm_status": "Failed original OLM objectives",
+          "research_value": "Significant - created comprehensive pose animation platform",
+          "pivot_success": "Successfully transformed failure into valuable pose-driven system"
+        },
+        "distinction": "Most advanced evolution - complete pose-driven animation system"
+      },
+
+      {
+        "branch_name": "stocks_failed_next day prediction",
+        "version": "1.2.0",
+        "status": "Signature Extraction & Manipulation Platform",
+        "description": "Temporal contrast-based signature learning with real-time manipulation",
+        "key_features": [
+          "Baseline architecture",
+          "Temporal contrast signature extraction (no manual labels)",
+          "Start/stop latent capture with object insert/remove marking",
+          "Statistical signature extraction: normalize(mean(with) - mean(without))",
+          "Projection subtraction: z' = z - (z·s) * s",
+          "Advanced method with VAE snap-back: z̃ = Enc(Dec(z - Pₛe))",
+          "Separated video windows (camera, AI, debug)",
+          "Latent_signatures/ folder with JSON exports"
+        ],
+        "signature_workflow": {
+          "capture": "Continuous latent recording from VAE",
+          "events": "Manual object insertion/removal marking",
+          "extraction": "Statistical comparison of with/without segments",
+          "averaging": "Multi-cycle temporal contrast with variance weighting",
+          "manipulation": "Real-time signature removal via projection"
+        },
+        "failed_approaches": [
+          {
+            "method": "Simple Projection Subtraction",
+            "formula": "z' = z - (z·s) * s",
+            "result": "Implemented but insufficient for quality removal"
+          },
+          {
+            "method": "Advanced VAE Snap-back",
+            "formula": "z̃ = Enc(Dec(z - Pₛe)) where e = z - ẑ",
+            "result": "Complex method did not improve over simple approach"
+          }
+        },
+        "distinction": "Signature-based latent manipulation research platform with multiple failed solution attempts"
+      },
+
+      {
+        "branch_name": "object_test_fail",
+        "version": "1.0.0 + Object Tracking",
+        "status": "Label-Free Object Tracking Development",
+        "description": "Real-time object tracking system integrated with VAE features",
+        "key_features": [
+          "Baseline architecture",
+          "VAE stride-8 feature extraction (encoder.down_blocks[1] and [2])",
+          "K-means clustering (16 clusters, 3 iterations) + edge augmentation",
+          "Shape penalties to prevent edge-hugging slabs",
+          "IoU-based greedy tracking (0.3 threshold, 0.25 hysteresis)",
+          "EMA bbox smoothing (0.7 prev + 0.3 curr)",
+          "26-dim LSTM slots: geometry(5) + kinematics(2) + stability(3) + features(16)"
+        ],
+        "performance_evolution": [
+          {
+            "phase": "Initial (Felzenszwalb)",
+            "latency": "~30 second delays",
+            "issue": "Too slow for real-time"
+          },
+          {
+            "phase": "Crisis (coordinate mismatch)",
+            "latency": "~910ms explosion",
+            "issues": ["NCHW vs NHWC errors", "Expensive clustering"]
+          },
+          {
+            "phase": "Optimized (minimal_tracker)",
+            "target": "<20ms latency",
+            "optimizations": [
+              "Clusters: 64→32→16",
+              "Iterations: 10→5→3",
+              "Fixed tensor layout (proper NHWC)",
+              "Coordinate alignment (resize to VAE format)",
+              "Vectorized operations"
+            ]
+          }
+        ],
+        "object_tracking_gui": {
+          "window": "Dedicated ObjectTrackingWindow",
+          "metrics": "FPS, tracks, coverage, births, deaths",
+          "timing": "Edge/kmeans/merge/track phase breakdown",
+          "visualization": "Bounding boxes with track IDs"
+        },
+        "lessons_learned": [
+          "Tensor layout crucial for VAE feature extraction",
+          "Coordinate consistency essential camera↔VAE",
+          "Performance requires aggressive real-time optimization",
+          "Shape penalties prevent degenerate detections"
+        ],
+        "distinction": "Real-time object tracking integration with extensive performance optimization"
+      },
+
+      {
+        "branch_name": "Level_test_success",
+        "version": "1.0.0",
+        "status": "Runtime Levels Testing",
+        "description": "Testing branch for runtime dimensionality control system",
+        "key_features": [
+          "Baseline architecture with runtime levels system",
+          "Testing sweet spot configurations",
+          "Validation of dimension change workflows"
+        ],
+        "distinction": "Validation branch for levels system"
+      },
+
+      {
+        "branch_name": "signal_res",
+        "version": "1.1.0",
+        "status": "Advanced Homeostatic Control + Multi-Color",
+        "description": "Signal Resonance Training with entropy regulation and multi-color contrastive learning",
+        "key_features": [
+          "Baseline architecture",
+          "Entropy-regulated flow control (per-tick homeostat)",
+          "Signal resonance training (FFT coherence analysis)",
+          "Compound LR modulation (entropy × resonance)",
+          "Multi-color contrastive training with InfoNCE",
+          "Hex color picker with unlimited color testing",
+          "Color eval mode with comprehensive metrics"
+        ],
+        "homeostatic_control": {
+          "entropy_regulation": {
+            "frequency": "Per forward pass",
+            "metric": "Transition entropy H_Δ from diagonal covariance",
+            "controls": "lr_mult [0.75,1.25], noise_std [0.005,0.02], dropout_p [0.05,0.35]",
+            "calibration": "mu_T=-1.50, sigma_T=0.30 (data-driven)"
+          },
+          "resonance_training": {
+            "frequency": "Every 4 frames",
+            "metric": "FFT coherence between compressed input and hidden trajectory",
+            "control": "res_gain [0.8,1.5] with 50× slope",
+            "target": "R=0.003 (p75 from production data)"
+          },
+          "compound_effect": "lr_eff = lr_mult × res_gain, range [0.7,1.8]"
+        },
+        "multi_color_system": {
+          "contrastive_loss": "InfoNCE with temperature=0.1, λ=0.1",
+          "state_management": "Hidden state reset on color change",
+          "magnitude_control": "Norm mismatch penalty (λ=0.01)",
+          "optimizer_adaptation": "Momentum clear + 50% LR drop on new color",
+          "color_cache": "Stores CLIP embeddings + VAE latents for contrastive negatives"
+        },
+        "telemetry": "resonance_entropy.jsonl with R, H_delta, lr_eff, noise_std, dropout_p",
+        "distinction": "Most advanced control system with data-driven homeostatic learning"
+      },
+
+      {
+        "branch_name": "Gen_1",
+        "version": "1.0.0",
+        "status": "Tile Decoder Experiment",
+        "description": "Added TileDecoder for low-latency Pygame visualization",
+        "key_features": [
+          "Baseline architecture",
+          "TileDecoder: 64-D intent → 16×16×3 RGB tiles",
+          "Pygame tile grid rendering at ~256×256",
+          "All-black initial tiles for gradual emergence",
+          "Desktop and Pygame capture modes"
+        ],
+        "distinction": "Experimental tile-based visualization layer"
+      },
+
+      {
+        "branch_name": "letters",
+        "version": "1.0.0",
+        "status": "Letter Recognition Classifier",
+        "description": "Token classification head for 26-letter recognition",
+        "key_features": [
+          "Baseline architecture",
+          "26-class token classifier in CentralLSTM",
+          "Letter rendering jitter (position ±5%, thickness ±10%)",
+          "Refractory period (skip 2 frames after correct prediction)",
+          "Label smoothing (0.05) and early-phase token bias schedule",
+          "Training cap: max 3 gradient steps per letter"
+        ],
+        "a_b_magnet_problem": {
+          "issue": "Model stuck predicting only A/B",
+          "solutions": "Token weight increase, optimizer resets, micro-curriculum"
+        },
+        "distinction": "Comprehensive token classification experiment"
+      },
+
+      {
+        "branch_name": "Anomoly detection_in progress",
+        "version": "1.1.0",
+        "status": "Normalcy-Based Anomaly Detection",
+        "description": "LSH-based normalcy cache for anomaly detection with automatic persistence",
+        "key_features": [
+          "Baseline architecture",
+          "NormalcyCache with LSH (5 tables, 16 hyperplanes)",
+          "Two-stage workflow: record normal, then detect",
+          "Automatic checkpointing (every 1000 frames)",
+          "Similarity-based anomaly alerts (threshold 98%)"
+        ],
+        "challenges": "CompressionLSTM uniformity (99%+ similarity)",
+        "distinction": "First normalcy-based detection + automatic model persistence"
+      },
+
+      {
+        "branch_name": "GUI_upgrade_ROI_PARTIAL_stable & GUI_2 variants",
+        "version": "1.0.0",
+        "status": "GUI Evolution Branches",
+        "description": "Iterative GUI improvements for ROI, audio, and window separation",
+        "key_features": [
+          "Separated video windows (dedicated Toplevel)",
+          "ROI visualization",
+          "Audio integration prep",
+          "Metrics window enhancements"
+        ],
+        "distinction": "GUI development iterations"
+      },
+
+      {
+        "branch_name": "OLA_WORKING_BASE & OLA_CLSTM_Loop_stable",
+        "version": "1.0.0",
+        "status": "ROI + Novelty Exploration System",
+        "description": "Dual-stream VAE with autonomous novelty-driven ROI tracking",
+        "key_features": [
+          "Dual-path VAE (periphery + ROI at different resolutions)",
+          "Per-cell novelty grid with cosine similarity",
+          "Autonomous action selection with coverage optimization",
+          "Scene cut detection and reset",
+          "32768-dim latent concatenation",
+          "Split-decode-composite pipeline"
+        ],
+        "distinction": "Complete autonomous foveated attention system"
+      },
+
+      {
+        "branch_name": "Gen2 & gen_3",
+        "version": "1.0.0",
+        "status": "Generation System Iterations",
+        "description": "Action replay and generation enhancements",
+        "key_features": [
+          "Baseline architecture",
+          "Action replay improvements",
+          "Generation window iterations"
+        ],
+        "distinction": "Iterative generation system development"
+      },
+
+      {
+        "branch_name": "Predict_No_Vid_failure & predict_No_Vid_failure2",
+        "version": "1.0.0",
+        "status": "Failed Prediction Experiments",
+        "description": "Attempted prediction without video feed",
+        "distinction": "Documented failure branches"
+      },
+
+      {
+        "branch_name": "pygame_color_Test_onging & ROI_impliment_in_progress",
+        "version": "1.0.0",
+        "status": "Early Development Branches",
+        "description": "Early prototypes for color and ROI systems",
+        "distinction": "Development precursors"
+      },
+
+      {
+        "branch_name": "genome_fail",
+        "version": "1.0.0",
+        "status": "Failed Genome Experiment",
+        "description": "Attempted genome-based architecture (abandoned)",
+        "key_features": [
+          "Experimental genome approach",
+          "Multiple checkpoint iterations"
+        ],
+        "distinction": "Documented architectural failure"
+      }
+    ],
+
+    "common_architecture": {
+      "frozen_vae": {
+        "source": "Stable Diffusion VAE",
+        "encoding": "Posterior mean with consistent scaling",
+        "latent_shape": "Typically [B, 4, 64, 64] for 512×512 input"
+      },
+      "lstm_stack": {
+        "pattern_lstm": {
+          "hidden_dim": 512,
+          "num_layers": 2,
+          "buffer_size": 16,
+          "purpose": "Temporal aggregation"
+        },
+        "compression_lstm": {
+          "compressed_dim": 256,
+          "num_layers": 2,
+          "purpose": "Pattern compression without variance collapse"
+        },
+        "central_lstm": {
+          "hidden_dim": 512,
+          "num_layers": 3,
+          "purpose": "Δz prediction with step controller"
+        }
+      },
+      "design_philosophy": "Clean separation: sensing (VAE) → aggregation (Pattern/Compression) → prediction (Central)"
+    },
+
+    "shared_capabilities": {
+      "telemetry": ["PSNR", "SSIM", "MSE", "cosine similarities", "delta norms", "gradient norms"],
+      "capture_modes": ["Camera", "Desktop capture", "Pygame interactive"],
+      "gui_features": ["Live view", "Metrics display", "Separated video windows", "Toggle controls"],
+      "logging": ["metrics.jsonl", "benchmarks.jsonl", "comprehensive event emission"],
+      "processing_rate": "Target 24 FPS with real-time capability"
+    },
+
+    "experimental_themes": {
+      "motion_prediction": {
+        "branches": ["default", "CLIP_Working_init"],
+        "focus": "Short-horizon latent dynamics prediction with step controller",
+        "achievements": "Stable 1-step prediction (PSNR 25-26 dB), degrading rollouts (10-step ~16 dB)"
+      },
+      "cursor_manipulation": {
+        "branches": ["Boundry_init_working_screencap", "Swap_claude_stable_non_functional", "swap_failure"],
+        "focus": "Cursor isolation and latent-space swapping",
+        "achievements": "Successful cursor isolation, comprehensive swap infrastructure",
+        "failures": "Template-based swap unreliable due to VAE resolution limits"
+      },
+      "latent_signatures": {
+        "branches": ["stocks_failed_next day prediction"],
+        "focus": "Temporal contrast-based object signature extraction and manipulation",
+        "achievements": "Label-free signature learning, real-time projection subtraction",
+        "failures": "Both simple and advanced removal methods insufficient for quality results"
+      },
+      "clustering_analysis": {
+        "branches": ["latent_map_working_simple"],
+        "focus": "Cluster lifecycle management and concept discovery",
+        "achievements": "7-metric promotion system, versioned concept_bank persistence"
+      },
+      "object_tracking": {
+        "branches": ["object_test_fail"],
+        "focus": "Label-free real-time object tracking from VAE features",
+        "achievements": "Sub-20ms latency target, 26-dim LSTM slots",
+        "challenges": "Performance optimization, coordinate system alignment"
+      },
+      "pose_animation": {
+        "branches": ["latent_pose_failed_needs more resarch"],
+        "focus": "MediaPipe pose-driven image animation",
+        "achievements": "Complete neural calibration system, multi-source capture, skeletal warping",
+        "status": "Most successful pivot from failed OLM objectives"
+      },
+      "semantic_guidance": {
+        "branches": ["CLIP_Working_init", "clip_working_base"],
+        "focus": "CLIP integration with motion-aware gating",
+        "achievements": "Successful selective semantic guidance during calm frames"
+      },
+      "homeostatic_learning": {
+        "branches": ["signal_res"],
+        "focus": "Adaptive learning rate control via entropy and signal resonance",
+        "achievements": "Data-driven homeostatic control, compound LR modulation (entropy × resonance), FFT-based coherence tracking"
+      },
+      "multi_color_conditioning": {
+        "branches": ["signal_res", "A_B_fix_dirty variants"],
+        "focus": "Contrastive learning for multiple color tokens",
+        "achievements": "InfoNCE contrastive loss, hex color picker, state/optimizer resets, eval mode metrics"
+      },
+      "roi_attention": {
+        "branches": ["OLA_WORKING_BASE", "OLA_CLSTM_Loop_stable", "GUI_upgrade_ROI_PARTIAL_stable"],
+        "focus": "Autonomous foveated attention with novelty-driven exploration",
+        "achievements": "Dual-stream VAE (periphery + ROI), per-cell novelty grid, autonomous action selection, 32768-dim concatenation"
+      },
+      "token_classification": {
+        "branches": ["letters"],
+        "focus": "Letter recognition via token classifier head",
+        "achievements": "26-class classifier with anti-magnet safeguards",
+        "challenges": "A/B magnet problem solved via refractory periods and micro-curriculum"
+      },
+      "anomaly_detection": {
+        "branches": ["Anomoly detection_in progress"],
+        "focus": "Normalcy-based anomaly detection with LSH",
+        "achievements": "Two-stage workflow (record normal → detect anomalies), automatic checkpointing",
+        "challenges": "Compression uniformity requires high similarity thresholds (98%)"
+      },
+      "visualization_experiments": {
+        "branches": ["Gen_1"],
+        "focus": "Alternative visualization via tile decoder",
+        "achievements": "Low-latency 16×16 RGB tile grid, Pygame rendering"
+      }
+    },
+
+    "key_learnings_across_branches": {
+      "successes": [
+        "CLIP motion gating prevents semantic interference during heavy motion",
+        "Cursor latent isolation achieves sub-pixel precision in VAE latent space",
+        "Temporal contrast enables label-free signature learning",
+        "Cluster lifecycle management with multi-metric promotion",
+        "Pose-driven animation with ridge regression calibration",
+        "Real-time object tracking achievable with aggressive optimization",
+        "Homeostatic control enables adaptive learning without manual tuning",
+        "FFT coherence analysis reveals input-internal alignment dynamics",
+        "Contrastive loss (InfoNCE) prevents multi-color cluster collapse",
+        "Dual-stream VAE enables efficient foveated processing",
+        "Per-cell novelty grids enable autonomous visual exploration",
+        "Token classification requires anti-magnet safeguards (refractory periods, training caps)",
+        "LSH-based normalcy detection provides fast similarity search"
+      ],
+      "failures": [
+        "Magnitude matching loss causes noise explosion (reverted)",
+        "Template-based cursor swap unreliable due to VAE 64×64 resolution limits",
+        "Projection subtraction insufficient for quality signature removal",
+        "VAE snap-back complexity doesn't improve over simple methods",
+        "MoE integration unsuccessful (insufficient documentation)",
+        "Original OLM objectives not achieved (pivoted to pose animation)",
+        "Compression uniformity limits anomaly detection sensitivity (99%+ similarity)",
+        "Token classification prone to early-class dominance without safeguards",
+        "Genome-based approach failed (abandoned)",
+        "Prediction-without-video experiments failed"
+      ],
+      "architectural_insights": [
+        "Frozen VAE provides stable latent space for manipulation",
+        "Three-stage LSTM enables modular debugging and iteration",
+        "Tensor layout (NCHW vs NHWC) critical for feature extraction",
+        "Coordinate system consistency essential for multi-source capture",
+        "Performance requires aggressive optimization for real-time operation",
+        "Failed projects can generate valuable research tools through pivoting",
+        "Homeostatic control systems enable self-regulating learning dynamics",
+        "Data-driven calibration (from production logs) superior to theoretical priors",
+        "State/optimizer resets critical for multi-condition learning",
+        "Contrastive learning essential for preventing cluster collapse",
+        "Dual-stream encoding enables computational efficiency (detail where needed)",
+        "Automatic checkpointing enables long-term learning accumulation"
+      ]
+    },
+
+    "technology_dependencies": {
+      "core": ["PyTorch", "Diffusers (Stable Diffusion VAE)", "OpenCV", "NumPy"],
+      "gui": ["Tkinter", "Pygame (interactive mode)"],
+      "advanced_features": {
+        "clip_guidance": ["transformers", "CLIP"],
+        "pose_animation": ["MediaPipe 0.10+", "SciPy"],
+        "clustering": ["scikit-learn", "UMAP"],
+        "object_tracking": ["scikit-image"]
+      },
+      "hardware": "CUDA-compatible GPU recommended for all branches"
+    },
+
+    "future_directions": {
+      "unexplored": [
+        "Higher resolution VAE for precise object localization",
+        "Learned cursor detection network vs template matching",
+        "Multi-step rollout objectives for long-horizon prediction",
+        "Subject replacement with identity-conditioned matting"
+      ],
+      "promising_pivots": [
+        "Pose-driven animation (already successful in latent_pose branch)",
+        "Cluster-based concept learning for object discovery",
+        "Hybrid approaches: RGB detection + latent manipulation"
+      ],
+      "infrastructure_ready": [
+        "Modular LSTM stack for plugin architectures",
+        "Multi-source capture system (camera/desktop/pygame)",
+        "Comprehensive logging and telemetry",
+        "Separated video windows for debugging",
+        "Real-time processing pipeline framework"
+      ]
+    },
+
+    "recommended_starting_points": {
+      "baseline_olm": {
+        "branch": "default",
+        "use_case": "Understanding core OLM pipeline and latent dynamics"
+      },
+      "cursor_research": {
+        "branch": "Boundry_init_working_screencap",
+        "use_case": "Cursor latent isolation experiments"
+      },
+      "signature_learning": {
+        "branch": "stocks_failed_next day prediction",
+        "use_case": "Temporal contrast-based object signature extraction"
+      },
+      "pose_animation": {
+        "branch": "latent_pose_failed_needs more resarch",
+        "use_case": "MediaPipe pose-driven animation applications"
+      },
+      "object_tracking": {
+        "branch": "object_test_fail",
+        "use_case": "Real-time label-free object tracking from VAE features"
+      },
+      "clip_integration": {
+        "branch": "CLIP_Working_init",
+        "use_case": "Semantic guidance with motion-aware gating"
+      },
+      "homeostatic_control": {
+        "branch": "signal_res",
+        "use_case": "Advanced adaptive learning with entropy/resonance control and multi-color training"
+      },
+      "roi_exploration": {
+        "branch": "OLA_WORKING_BASE",
+        "use_case": "Autonomous novelty-driven attention and foveated processing"
+      },
+      "anomaly_detection": {
+        "branch": "Anomoly detection_in progress",
+        "use_case": "Normalcy-based anomaly detection with automatic model persistence"
+      },
+      "token_classification": {
+        "branch": "letters",
+        "use_case": "Token-based classification experiments with anti-collapse strategies"
+      }
+    },
+
+    "documentation_notes": {
+      "maintenance_policy": "All branches follow experimental_notes update pattern: change → files → outcome",
+      "versioning": "Branches range from v1.0.0 (baseline) to v1.3.0 (pose animation), with v1.1.0+ for advanced features",
+      "preservation": "All original project summaries maintained unchanged in respective rollback folders",
+      "master_summary_location": "rollbacks/master_project_summary.json",
+      "individual_summaries": "Each rollback folder contains original project_summary.json",
+      "total_branches": "32 experimental branches documented",
+      "last_updated": "2025-10-17"
+    }
+  }
+}
