@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OLA Evolution Cycle</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #00ff88;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #888;
+            font-size: 1.1em;
+            margin-bottom: 40px;
+        }
+        
+        svg {
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.3));
+        }
+        
+        .box {
+            fill: #2a2a4a;
+            stroke: #00ff88;
+            stroke-width: 2;
+            rx: 10;
+        }
+        
+        .decision-box {
+            fill: #4a2a2a;
+            stroke: #ff6b6b;
+            stroke-width: 2;
+        }
+        
+        .action-box {
+            fill: #2a4a2a;
+            stroke: #00ff88;
+            stroke-width: 2;
+            rx: 10;
+        }
+        
+        .trust-up {
+            fill: #2a4a4a;
+            stroke: #4ecdc4;
+            stroke-width: 2;
+            rx: 10;
+        }
+        
+        .trust-down {
+            fill: #4a3a2a;
+            stroke: #ff9f43;
+            stroke-width: 2;
+            rx: 10;
+        }
+        
+        .text {
+            fill: #ffffff;
+            font-size: 16px;
+            font-weight: 500;
+            text-anchor: middle;
+        }
+        
+        .small-text {
+            fill: #cccccc;
+            font-size: 13px;
+            text-anchor: middle;
+        }
+        
+        .arrow {
+            stroke: #00ff88;
+            stroke-width: 2.5;
+            fill: none;
+            marker-end: url(#arrowhead);
+        }
+        
+        .arrow-good {
+            stroke: #4ecdc4;
+            stroke-width: 2.5;
+            fill: none;
+            marker-end: url(#arrowhead-good);
+        }
+        
+        .arrow-bad {
+            stroke: #ff9f43;
+            stroke-width: 2.5;
+            fill: none;
+            marker-end: url(#arrowhead-bad);
+        }
+        
+        .loop-arrow {
+            stroke: #00ff88;
+            stroke-width: 2.5;
+            fill: none;
+            stroke-dasharray: 5, 5;
+            marker-end: url(#arrowhead);
+        }
+        
+        .label {
+            fill: #00ff88;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .label-good {
+            fill: #4ecdc4;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .label-bad {
+            fill: #ff9f43;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        
+        .arrow, .arrow-good, .arrow-bad {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OLA Evolution Cycle</h1>
+        <p class="subtitle">Trust-Based Genome Selection & Continuous Learning</p>
+        
+        <svg viewBox="0 0 800 900" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                    <polygon points="0 0, 10 3, 0 6" fill="#00ff88" />
+                </marker>
+                <marker id="arrowhead-good" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                    <polygon points="0 0, 10 3, 0 6" fill="#4ecdc4" />
+                </marker>
+                <marker id="arrowhead-bad" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                    <polygon points="0 0, 10 3, 0 6" fill="#ff9f43" />
+                </marker>
+            </defs>
+            
+            <!-- Genome Population -->
+            <rect class="box" x="250" y="20" width="300" height="80" />
+            <text class="text" x="400" y="55">Genome Population</text>
+            <text class="small-text" x="400" y="80">(8 genomes with trust values)</text>
+            
+            <!-- Arrow down -->
+            <path class="arrow" d="M 400 100 L 400 150" />
+            
+            <!-- Select Genome -->
+            <rect class="action-box" x="250" y="150" width="300" height="80" />
+            <text class="text" x="400" y="185">Select Genome</text>
+            <text class="small-text" x="400" y="210">(Trust-weighted selection)</text>
+            
+            <!-- Arrow down -->
+            <path class="arrow" d="M 400 230 L 400 280" />
+            
+            <!-- Try Action -->
+            <rect class="action-box" x="250" y="280" width="300" height="80" />
+            <text class="text" x="400" y="315">Agent Tries Action</text>
+            <text class="small-text" x="400" y="340">(Genome generates policy output)</text>
+            
+            <!-- Arrow down -->
+            <path class="arrow" d="M 400 360 L 400 410" />
+            
+            <!-- Decision Diamond -->
+            <polygon class="decision-box" points="400,410 550,480 400,550 250,480" />
+            <text class="text" x="400" y="475">Good Result?</text>
+            <text class="small-text" x="400" y="495">(Reward signal)</text>
+            
+            <!-- Good path (right) -->
+            <path class="arrow-good" d="M 550 480 L 650 480" />
+            <text class="label-good" x="600" y="465">YES</text>
+            
+            <rect class="trust-up" x="650" y="440" width="130" height="80" />
+            <text class="text" x="715" y="470" style="fill: #4ecdc4;">Trust ↑</text>
+            <text class="small-text" x="715" y="495">Genome</text>
+            <text class="small-text" x="715" y="512">Remains</text>
+            
+            <!-- Bad path (left) -->
+            <path class="arrow-bad" d="M 250 480 L 150 480" />
+            <text class="label-bad" x="200" y="465">NO</text>
+            
+            <rect class="trust-down" x="20" y="440" width="130" height="80" />
+            <text class="text" x="85" y="470" style="fill: #ff9f43;">Trust ↓</text>
+            <text class="small-text" x="85" y="495">Genome</text>
+            <text class="small-text" x="85" y="512">Mutates</text>
+            
+            <!-- Arrows back to population -->
+            <path class="loop-arrow" d="M 715 440 L 715 380 Q 715 350 685 350 L 550 350 Q 520 350 520 320 L 520 100" />
+            <text class="label" x="620" y="340">Elite genome preserved</text>
+            
+            <path class="loop-arrow" d="M 85 440 L 85 380 Q 85 350 115 350 L 280 350 Q 310 350 310 320 L 310 100" />
+            <text class="label" x="180" y="340">New variant added</text>
+            
+            <!-- Central loop arrow -->
+            <path class="loop-arrow" d="M 400 550 L 400 620 Q 400 650 370 650 L 30 650 Q 0 650 0 620 L 0 60 Q 0 30 30 30 L 250 30" />
+            <text class="label" x="120" y="680" style="font-size: 16px;">CONTINUOUS LEARNING LOOP</text>
+            
+            <!-- Legend -->
+            <g transform="translate(50, 750)">
+                <text class="text" x="0" y="0" style="text-anchor: start; font-size: 18px; fill: #00ff88;">Key Insights:</text>
+                <text class="small-text" x="0" y="25" style="text-anchor: start;">• No gradient descent - pure evolutionary selection</text>
+                <text class="small-text" x="0" y="50" style="text-anchor: start;">• Trust creates stability - good genomes persist longer</text>
+                <text class="small-text" x="0" y="75" style="text-anchor: start;">• Mutation creates exploration - bad genomes evolve</text>
+                <text class="small-text" x="0" y="100" style="text-anchor: start;">• Population maintains diversity while improving</text>
+            </g>
+        </svg>
+    </div>
+</body>
+</html>
