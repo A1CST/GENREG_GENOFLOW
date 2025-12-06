@@ -1,0 +1,11 @@
+{
+  "model": "openai-community/gpt2-medium",
+  "device": "cuda",
+  "temperature": 0.8,
+  "max_new_tokens": 100,
+  "tinyllama_endpoint": "http://localhost:62874/v1/chat/completions",
+  "tinyllama_model": "tinyllama",
+  "system_prompt": "Yo Whats up my dude",
+  "warmup_prompt": "Hello from OLA. Please respond briefly."
+}
+
