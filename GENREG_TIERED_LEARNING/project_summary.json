@@ -1,0 +1,286 @@
+{
+    "project_name": "GENREG Tiered Learning",
+    "version": "2.2",
+    "last_updated": "2024-12-03",
+    "description": "Child-like vocabulary acquisition with fill-in-the-blank learning. Uses 10-tier vocabulary (20 to 2000 words), geometric predictor (no neural controller), protein-based trust signals, and evolutionary learning with multi-phase threshold training.",
+    
+    "core_concept": "Learn language like children do: small vocabulary first, fill in blanks, then expand vocabulary progressively. Bidirectional context (left + blank + right) forces actual understanding. Multi-phase training reinforces learning at increasingly strict thresholds.",
+  
+    "files": {
+      "config.py": "All hyperparameters + 10 tier vocabulary definitions + auto-scale config + threshold phases + protein configs",
+      "vocabulary.py": "Tiered vocabulary management that grows with tiers",
+      "dataset_generator.py": "Generates fill-in-blank sentences per tier with varying complexity",
+      "controller_archived.py": "Old bidirectional neural controller (archived, not used)",
+      "geometric_predictor.py": "NEW: Pure geometric predictor - no neural network, just weighted context averaging",
+      "genome.py": "TieredGenome and TieredPopulation with expandable embeddings + GeometricPredictor",
+      "environment.py": "Fill-in-blank task environment and curriculum manager",
+      "train.py": "Main training loop with multi-phase threshold training, stability protein, and language proteins",
+      "proteins.py": "Base protein regulatory system",
+      "language_proteins.py": "NEW: Language-specific proteins for shaped trust signals",
+      "embedding_stability_protein.py": "NEW: Protects inactive embeddings during phase restarts",
+      "benchmark.py": "Proximity benchmark (is A closer to B than C?)",
+      "benchmark2.py": "Neighborhood topology benchmark (nearest neighbors analysis)",
+      "benchmark3.py": "Generalization test (novel sentences vs training)"
+    },
+  
+    "data": {
+      "data/tier1.json": "500 sentences, 20 words, 3-5 word sentences",
+      "data/tier2.json": "500 sentences, 40 words, 3-5 word sentences",
+      "data/tier3.json": "800 sentences, 80 words, 4-6 word sentences",
+      "data/tier4.json": "1000 sentences, 150 words, 5-7 word sentences",
+      "data/tier5.json": "1500 sentences, 250 words, 5-8 word sentences",
+      "data/tier6.json": "2000 sentences, 400 words, 6-10 word sentences",
+      "data/tier7.json": "2500 sentences, 600 words, 7-12 word sentences",
+      "data/tier8.json": "3000 sentences, 900 words, 8-12 word sentences",
+      "data/tier9.json": "4000 sentences, 1300 words, 8-15 word sentences",
+      "data/tier10.json": "5000 sentences, 2000 words, 10-15 word sentences"
+    },
+  
+    "changelog": [
+      {
+        "id": "v1.0",
+        "date": "2024-11-30",
+        "title": "Initial Tiered Learning System",
+        "status": "successful",
+        "changes": [
+          "Bidirectional controller (left + blank marker + right context)",
+          "Tiered vocabulary (20 words per tier, cumulative)",
+          "Fill-in-the-blank task with variable blank position",
+          "Shared embeddings that expand with vocabulary",
+          "90% mastery threshold to advance tiers"
+        ],
+        "notes": "Tier 1 and 2 both mastered successfully. Tier 2 at 97.8% ceiling - needs more tiers."
+      },
+      {
+        "id": "v2.0",
+        "date": "2024-11-30",
+        "title": "Full 10-Tier Implementation with Auto-Scaling",
+        "status": "superseded",
+        "changes": [
+          "Expanded to 10 tiers (20 -> 2000 words)",
+          "Progressive sentence complexity (3-5 words -> 10-15 words)",
+          "Auto-scaling architecture when plateau detected",
+          "Plateau detection (50 gens stuck at 85-90% triggers scale)",
+          "Embedding/hidden dimensions scale by 1.5x up to max",
+          "Enhanced dataset generator for varied sentence patterns"
+        ],
+        "notes": "Full curriculum defined. Threshold tightening was too aggressive per-tier."
+      },
+      {
+        "id": "v2.1",
+        "date": "2024-11-30",
+        "title": "Multi-Phase Threshold Training",
+        "status": "superseded",
+        "changes": [
+          "Replaced per-tier threshold tightening with multi-phase approach",
+          "Phase 1: Complete ALL tiers (1-10) at threshold 2.5 (easy)",
+          "Phase 2: Complete ALL tiers (1-10) at threshold 1.7 (medium)",
+          "Phase 3: Complete ALL tiers (1-10) at threshold 1.0 (strict)",
+          "Checkpoints now include threshold phase in filename",
+          "Population carries forward between phases with vocabulary expansion",
+          "Each phase resets to Tier 1 but retains learned embeddings"
+        ],
+        "notes": "Allows gradual refinement of embeddings across multiple passes through vocabulary."
+      },
+      {
+        "id": "v2.2",
+        "date": "2024-12-03",
+        "title": "Architectural Overhaul - GeometricPredictor + Proteins",
+        "status": "active - debugging",
+        "changes": [
+          "REPLACED neural controller with GeometricPredictor (no hidden layers, just weighted context averaging)",
+          "ADDED protein-based trust signals (proximity, category, improvement, hit)",
+          "ADDED embedding stability protein (freezes inactive embeddings during phase restarts)",
+          "ADDED language proteins for shaped trust signals instead of binary hit/miss",
+          "Controller now has only 40 evolvable parameters (8 position + 32 dim weights) vs ~5000 before",
+          "Forces ALL learning into embedding space - embeddings MUST structure semantically or fail",
+          "Fixed mutation targeting to select only from active indices (not frozen ones)"
+        ],
+        "notes": "Goal: Eliminate neural network absorbing patterns, force semantic embedding structure."
+      }
+    ],
+  
+    "current_issue": {
+      "status": "RESOLVED",
+      "problem": "Phase 2 Tier 1 accuracy locked at exactly 58.4%",
+      "root_cause": "Shared embedding mutation rate was too low (0.01) for the tighter threshold in phase 2",
+      "solution": "Increase shared_embedding_mutation_rate to 0.6 for phase 2+",
+      "symptoms_were": [
+        "All 100 genomes have EXACTLY 58.4% accuracy",
+        "No diversity in population - all genomes behave identically",
+        "Stability protein correctly showed 22 active embeddings",
+        "Mutations were targeting correct indices but rate was insufficient"
+      ],
+      "fixes_applied": [
+        {
+          "fix": "Target mutations only at active indices instead of random 0-1849",
+          "result": "Correct fix but not sufficient alone",
+          "kept": true
+        },
+        {
+          "fix": "Increase shared_embedding_mutation_rate from 0.01 to 0.6",
+          "result": "RESOLVED - training progresses",
+          "kept": true,
+          "critical": true
+        }
+      ]
+    },
+
+    "phase_2_requirements": {
+      "CRITICAL": "Phase 2 requires different config settings than Phase 1",
+      "required_changes": [
+        {
+          "setting": "shared_embedding_mutation_rate",
+          "phase_1_value": 0.01,
+          "phase_2_value": 0.6,
+          "reason": "Tighter threshold (1.7 vs 2.5) requires more aggressive exploration to escape local minima"
+        }
+      ],
+      "why": "Phase 1 embeddings are 'good enough' for threshold 2.5 but not precise enough for 1.7. The embeddings must be refined significantly, requiring higher mutation rates to explore the space."
+    },
+
+    "current_config": {
+      "embedding_dim": 32,
+      "controller_hidden_size": 64,
+      "context_window": 4,
+      "population_size": 100,
+      "mastery_threshold": 0.90,
+      "shared_embeddings": true,
+      "shared_embedding_mix_ratio": 0.7,
+      "crossover_rate": 0.4,
+      "threshold_phases": [2.5, 1.7, 1.0],
+      "predictor_type": "GeometricPredictor (no neural network)",
+      "proteins": {
+        "stability_protein": "Freezes inactive embeddings (inactive_mutation_rate: 0.0)",
+        "language_proteins": "Proximity, category, improvement, hit-based trust signals"
+      },
+      "auto_scale": {
+        "enabled": true,
+        "plateau_threshold": 0.85,
+        "plateau_generations": 50,
+        "scale_factor": 1.5,
+        "max_embedding_dim": 128,
+        "max_hidden_size": 256
+      }
+    },
+
+    "multi_phase_training": {
+      "description": "Training runs through all 10 tiers three times, each time with a stricter hit threshold",
+      "IMPORTANT": "Phase 2+ requires higher mutation rates - see phase_2_requirements section",
+      "phases": [
+        {
+          "phase": 1,
+          "threshold": 2.5,
+          "difficulty": "easy",
+          "purpose": "Initial learning - embeddings can be roughly in the right area",
+          "status": "COMPLETED",
+          "config": {
+            "shared_embedding_mutation_rate": 0.01
+          }
+        },
+        {
+          "phase": 2,
+          "threshold": 1.7,
+          "difficulty": "medium", 
+          "purpose": "Refinement - embeddings must be more precise",
+          "status": "IN PROGRESS",
+          "config": {
+            "shared_embedding_mutation_rate": 0.6,
+            "note": "MUST increase mutation rate or training stalls at 58.4%"
+          }
+        },
+        {
+          "phase": 3,
+          "threshold": 1.0,
+          "difficulty": "strict",
+          "purpose": "Mastery - embeddings must be highly accurate",
+          "status": "pending"
+        }
+      ]
+    },
+  
+    "tier_structure": {
+      "tier1": "20 words - Articles, basic nouns, verbs, adjectives",
+      "tier2": "40 total - Extended basics",
+      "tier3": "80 total - Prepositions, pronouns",
+      "tier4": "150 total - Actions, places, time",
+      "tier5": "250 total - Adverbs, food, clothing, feelings",
+      "tier6": "400 total - Questions, conjunctions, negation",
+      "tier7": "600 total - Abstract nouns, compound sentences",
+      "tier8": "900 total - Complex structures, education, emotions",
+      "tier9": "1300 total - Near-conversational vocabulary",
+      "tier10": "2000 total - Full conversational vocabulary"
+    },
+  
+    "key_differences_from_original": [
+      "Bidirectional context instead of left-only",
+      "Variable blank position instead of always predict position 4",
+      "Tiered vocabulary instead of full vocab from start",
+      "Fill-in-the-blank task instead of next-word prediction",
+      "Auto-scaling architecture when plateau detected",
+      "Progressive sentence complexity with vocabulary growth",
+      "Multi-phase threshold training (3 passes through all tiers)",
+      "GeometricPredictor instead of neural controller (forces embedding structure)",
+      "Protein-based trust signals instead of binary hit/miss",
+      "Embedding stability protein to protect learned structure during phase restarts"
+    ],
+  
+    "observations": [
+      {
+        "date": "2024-11-30",
+        "note": "Tier 1 mastered in ~9 generations"
+      },
+      {
+        "date": "2024-11-30", 
+        "note": "Tier 2 mastered in ~6 generations after Tier 1"
+      },
+      {
+        "date": "2024-11-30",
+        "note": "97.8% ceiling on Tier 2 - some sentences ambiguous. Expected."
+      },
+      {
+        "date": "2024-11-30",
+        "note": "42 words learned in 15 total generations. Learning curve healthy."
+      },
+      {
+        "date": "2024-11-30",
+        "note": "v2.1: Switched to multi-phase training - previous per-tier threshold tightening was too aggressive"
+      },
+      {
+        "date": "2024-12-03",
+        "note": "Phase 1 completed all 10 tiers at threshold 2.5"
+      },
+      {
+        "date": "2024-12-03",
+        "note": "ISSUE: Phase 2 Tier 1 stuck at exactly 58.4% - zero diversity across 100 genomes"
+      },
+      {
+        "date": "2024-12-03",
+        "note": "Stability protein verified working - 22 active IDs, mask correct"
+      },
+      {
+        "date": "2024-12-03",
+        "note": "Fixed mutation targeting to select only from active indices - still stuck"
+      }
+    ],
+  
+    "next_steps": [
+      "PRIORITY: Debug why all genomes have identical accuracy (58.4%)",
+      "Check if position_weights are different between genomes",
+      "Consider reducing shared_embedding_mix_ratio for phase 2+",
+      "Consider disabling shared embeddings entirely with GeometricPredictor",
+      "Add more exploration/noise to predictions",
+      "After fixing: Continue phase 2 training",
+      "Future: Phase 4 - Next-word prediction mode"
+    ],
+
+    "milestones": [
+      { "milestone": "Phase 1 complete (all tiers at 2.5)", "status": "COMPLETED" },
+      { "milestone": "Phase 2 complete (all tiers at 1.7)", "status": "BLOCKED - stuck at Tier 1" },
+      { "milestone": "Phase 3 complete (all tiers at 1.0)", "status": "pending" },
+      { "milestone": "First auto-scale triggered", "status": "pending" },
+      { "milestone": "All phases complete - 2000 words mastered", "status": "pending" },
+      { "milestone": "Next-word prediction working", "status": "pending" },
+      { "milestone": "First generated sentence", "status": "pending" }
+    ]
+  }
