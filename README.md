@@ -1,4 +1,5 @@
 # 🧬 GenoFlow: The Visual IDE for Genetic Regulatory AI
+** Note this application is still in development. Please pin or note bugs. 
 
 **GenoFlow** (formerly *Genome Studio*) is a visual, node-based development environment for designing, training, and tuning **GENREG** (Genetic Regulatory) AI models.
 
