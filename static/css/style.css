@@ -1,0 +1,539 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #1a1a1a;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+}
+
+#litegraph-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #1a1a1a;
+}
+
+/* Dark theme overrides for LiteGraph */
+.lgraphcanvas {
+    background: #1a1a1a;
+}
+
+.lgraphcanvas .lgraph-grid {
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+/* Custom context menu styling */
+.custom-context-menu {
+    position: absolute;
+    background: #2d2d2d;
+    border: 1px solid #444;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    padding: 4px 0;
+    min-width: 200px;
+    z-index: 10000;
+    display: none;
+}
+
+.custom-context-menu.show {
+    display: block;
+}
+
+.custom-context-menu-item {
+    padding: 8px 16px;
+    color: #e0e0e0;
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+}
+
+.custom-context-menu-item:hover {
+    background: #3d3d3d;
+}
+
+.custom-context-menu-item.has-submenu::after {
+    content: '▶';
+    float: right;
+    color: #888;
+    font-size: 10px;
+    margin-left: 8px;
+}
+
+.custom-context-submenu {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    margin-left: 2px;
+    background: #2d2d2d;
+    border: 1px solid #444;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    padding: 4px 0;
+    min-width: 180px;
+    display: none;
+    pointer-events: none;
+    /* Add a small invisible bridge to make mouse movement easier */
+    margin-top: -4px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.custom-context-submenu.show {
+    display: block;
+    pointer-events: auto;
+}
+
+.custom-context-submenu-item {
+    padding: 8px 16px;
+    color: #e0e0e0;
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+}
+
+.custom-context-submenu-item:hover {
+    background: #3d3d3d;
+}
+
+.custom-context-menu-separator {
+    height: 1px;
+    background: #444;
+    margin: 4px 0;
+}
+
+/* Hide all default LiteGraph context menus and node panels */
+.litemenu,
+.litegraph-menu,
+.lgraphcontextmenu,
+.lgraph-searchbox,
+.lgraph-info-panel {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Protein node styling - rounded corners */
+.litegraph .lgraph-node {
+    border-radius: 8px;
+}
+
+/* Ensure proper slot alignment */
+.litegraph .lgraph-node .lgraph-input,
+.litegraph .lgraph-node .lgraph-output {
+    border-radius: 4px;
+}
+
+/* Console Output Panel */
+.console-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 300px;
+    background: #1a1a1a;
+    border-top: 2px solid #444;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    transition: height 0.3s ease;
+}
+
+.console-panel.collapsed {
+    height: 35px;
+}
+
+.console-panel-header {
+    background: #2d2d2d;
+    border-bottom: 1px solid #444;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+    cursor: default;
+}
+
+.console-panel-header span {
+    color: #e0e0e0;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.console-clear-btn,
+.console-toggle-btn {
+    background: #3d3d3d;
+    border: 1px solid #555;
+    color: #e0e0e0;
+    padding: 4px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 11px;
+    margin-left: 8px;
+    transition: background 0.2s;
+}
+
+.console-clear-btn:hover,
+.console-toggle-btn:hover {
+    background: #4d4d4d;
+}
+
+.console-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+    color: #e0e0e0;
+    background: #1a1a1a;
+}
+
+.console-log-entry {
+    padding: 4px 8px;
+    margin: 2px 0;
+    border-left: 3px solid transparent;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.console-log-entry.log {
+    border-left-color: #3498db;
+    background: rgba(52, 152, 219, 0.05);
+}
+
+.console-log-entry.info {
+    border-left-color: #2ecc71;
+    background: rgba(46, 204, 113, 0.05);
+}
+
+.console-log-entry.warn {
+    border-left-color: #f39c12;
+    background: rgba(243, 156, 18, 0.05);
+}
+
+.console-log-entry.error {
+    border-left-color: #e74c3c;
+    background: rgba(231, 76, 60, 0.05);
+}
+
+.console-log-timestamp {
+    color: #888;
+    margin-right: 8px;
+}
+
+.console-log-label {
+    color: #3498db;
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+.console-log-type {
+    color: #95a5a6;
+    margin-right: 8px;
+    font-style: italic;
+}
+
+/* Execution Control Panel */
+.execution-control-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 45px;
+    background: #2d2d2d;
+    border-bottom: 2px solid #444;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 8px;
+    user-select: none;
+}
+
+.control-btn {
+    background: #3d3d3d;
+    border: 1px solid #555;
+    color: #e0e0e0;
+    padding: 6px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s;
+    min-width: 40px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-btn:hover {
+    background: #4d4d4d;
+    border-color: #666;
+}
+
+.control-btn:active {
+    background: #2d2d2d;
+    transform: scale(0.95);
+}
+
+.control-btn.play-btn.playing {
+    background: #27ae60;
+    border-color: #2ecc71;
+}
+
+.control-btn.play-btn.playing:hover {
+    background: #229954;
+}
+
+.control-separator {
+    width: 1px;
+    height: 24px;
+    background: #555;
+    margin: 0 4px;
+}
+
+/* File Menu */
+.file-menu-container {
+    position: relative;
+}
+
+.file-menu-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 4px;
+    background: #2d2d2d;
+    border: 1px solid #555;
+    border-radius: 4px;
+    min-width: 160px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 3000;
+    overflow: hidden;
+}
+
+.file-menu-container:hover .file-menu-dropdown,
+.file-menu-dropdown:hover {
+    display: block;
+}
+
+.file-menu-item {
+    padding: 8px 16px;
+    color: #e0e0e0;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+    user-select: none;
+}
+
+.file-menu-item:hover {
+    background: #3d3d3d;
+}
+
+.file-menu-separator {
+    height: 1px;
+    background: #555;
+    margin: 4px 0;
+}
+
+.control-label {
+    color: #e0e0e0;
+    font-size: 12px;
+    font-weight: 500;
+    margin: 0 4px;
+}
+
+.rate-slider {
+    width: 120px;
+    height: 4px;
+    background: #3d3d3d;
+    border-radius: 2px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.rate-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: #3498db;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.rate-slider::-webkit-slider-thumb:hover {
+    background: #5dade2;
+}
+
+.rate-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: #3498db;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+}
+
+.rate-slider::-moz-range-thumb:hover {
+    background: #5dade2;
+}
+
+.rate-input {
+    width: 50px;
+    height: 28px;
+    background: #3d3d3d;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #e0e0e0;
+    padding: 4px 8px;
+    font-size: 12px;
+    text-align: center;
+    outline: none;
+}
+
+.rate-input:focus {
+    border-color: #3498db;
+    background: #404040;
+}
+
+.execution-status {
+    color: #95a5a6;
+    font-size: 11px;
+    font-weight: 500;
+    margin-left: auto;
+    padding: 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.execution-status.playing {
+    color: #2ecc71;
+}
+
+.execution-status.paused {
+    color: #e74c3c;
+}
+
+/* Chart Monitor Panel */
+.chart-panel {
+    position: fixed;
+    right: 0;
+    top: 45px; /* Below execution control panel */
+    bottom: 35px; /* Above console panel */
+    width: 350px;
+    background: #1e1e1e;
+    border-left: 2px solid #444;
+    z-index: 1500;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease;
+}
+
+.chart-panel.collapsed {
+    width: 35px;
+}
+
+.chart-panel-header {
+    background: #2d2d2d;
+    border-bottom: 1px solid #444;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+    cursor: default;
+    height: 35px;
+}
+
+.chart-panel.collapsed .chart-panel-header {
+    padding: 8px 0;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    height: auto;
+    width: 35px;
+}
+
+.chart-panel-header span {
+    color: #e0e0e0;
+    font-weight: 600;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chart-panel.collapsed .chart-panel-header span {
+    transform: rotate(180deg);
+}
+
+.chart-panel-toggle-btn {
+    background: #3d3d3d;
+    border: 1px solid #555;
+    color: #e0e0e0;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: background 0.2s;
+}
+
+.chart-panel.collapsed .chart-panel-toggle-btn {
+    transform: rotate(180deg);
+}
+
+.chart-panel-toggle-btn:hover {
+    background: #4d4d4d;
+}
+
+.chart-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    background: #1a1a1a;
+}
+
+.chart-panel.collapsed .chart-panel-content {
+    display: none;
+}
+
+.chart-container {
+    margin-bottom: 15px;
+    background: #252525;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.chart-container h3 {
+    color: #e0e0e0;
+    font-size: 14px;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.chart-canvas {
+    width: 100%;
+    height: 150px;
+    background: #111;
+    border-radius: 3px;
+}
+

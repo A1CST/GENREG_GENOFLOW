@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GENREG - Genetic Regulatory Network</title>
+    
+    <!-- LiteGraph CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litegraph.js@0.7.15/css/litegraph.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Execution Control Panel -->
+    <div id="execution-control-panel" class="execution-control-panel">
+        <!-- File Menu -->
+        <div class="file-menu-container">
+            <button id="file-menu-btn" class="control-btn file-btn" title="File">📁 File</button>
+            <div id="file-menu-dropdown" class="file-menu-dropdown">
+                <div class="file-menu-item" id="file-save">💾 Save</div>
+                <div class="file-menu-item" id="file-load">📂 Load</div>
+                <div class="file-menu-separator"></div>
+                <div class="file-menu-item" id="file-export">📤 Export JSON</div>
+                <div class="file-menu-item" id="file-import">📥 Import JSON</div>
+            </div>
+        </div>
+        <div class="control-separator"></div>
+        <button id="play-pause-btn" class="control-btn play-btn" title="Play/Pause">▶</button>
+        <button id="step-btn" class="control-btn" title="Step">⏭</button>
+        <button id="reset-btn" class="control-btn" title="Reset">⏹</button>
+        <div class="control-separator"></div>
+        <label class="control-label">Rate:</label>
+        <input type="range" id="rate-slider" class="rate-slider" min="1" max="60" value="30" title="Update Rate (FPS)">
+        <input type="number" id="rate-input" class="rate-input" min="1" max="60" value="30" title="Update Rate (FPS)">
+        <span class="control-label">FPS</span>
+        <div class="control-separator"></div>
+        <span id="execution-status" class="execution-status">Paused</span>
+    </div>
+    
+    <!-- Hidden file input for importing JSON -->
+    <input type="file" id="file-import-input" accept=".json" style="display: none;">
+
+    <!-- Chart Monitor Panel -->
+    <div id="chart-panel" class="chart-panel collapsed" style="display: none;">
+        <div class="chart-panel-header">
+            <span id="chart-panel-title">Charts</span>
+            <button id="chart-panel-toggle-btn" class="chart-panel-toggle-btn">◀</button>
+        </div>
+        <div id="chart-panel-content" class="chart-panel-content"></div>
+    </div>
+    
+    <canvas id="litegraph-canvas"></canvas>
+    
+    <!-- Console Output Panel -->
+    <div id="console-panel" class="console-panel">
+        <div class="console-panel-header">
+            <span>Console Output</span>
+            <button id="console-clear-btn" class="console-clear-btn">Clear</button>
+            <button id="console-toggle-btn" class="console-toggle-btn">▼</button>
+        </div>
+        <div id="console-content" class="console-content"></div>
+    </div>
+    
+    <!-- LiteGraph JS -->
+    <script src="https://cdn.jsdelivr.net/npm/litegraph.js@0.7.15/build/litegraph.min.js"></script>
+    
+    <!-- Episode Runner Node -->
+    <script src="/static/js/episode_runner.js"></script>
+    
+    <!-- Genome Controller Nodes -->
+    <script src="/static/js/genome_controller.js"></script>
+    
+    <!-- Custom Node Definitions -->
+    <script src="/static/js/nodes/protein_nodes.js"></script>
+    <script src="/static/js/nodes/environment_nodes.js"></script>
+    <script src="/static/js/nodes/routing_nodes.js"></script>
+    <script src="/static/js/nodes/population_nodes.js"></script>
+    <script src="/static/js/nodes/mutator_nodes.js"></script>
+    <script src="/static/js/nodes/utility_nodes.js"></script>
+    <script src="/static/js/nodes/controller_nodes.js"></script>
+
+    <!-- Custom JS -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
+
+
+

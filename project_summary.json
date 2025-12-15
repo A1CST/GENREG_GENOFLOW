@@ -1,0 +1,104 @@
+{
+  "project": {
+    "name": "Genome Studio",
+    "version": "0.1.0",
+    "author": "Payton Miller",
+    "year": 2025
+  },
+  "purpose": {
+    "summary": "A visual node-based IDE for designing, training, and tuning GENREG (Genetic Regulatory) AI models",
+    "description": "Genome Studio provides a LiteGraph-based interface to construct and visualize AI architectures that combine evolutionary algorithms with regulatory protein networks. The system uses Snake as a testbed environment, but the architecture is designed to be environment-agnostic for future applications.",
+    "goals": [
+      "Visualize AI model architecture as connected node graphs",
+      "Real-time monitoring of training metrics (trust, fitness, population stats)",
+      "Interactive parameter tuning without code changes",
+      "Separation of regulatory layer (proteins) from functional layer (controller)",
+      "Evolutionary optimization with trust-based selection"
+    ]
+  },
+  "architecture": {
+    "frontend": {
+      "technology": "LiteGraph.js + Vanilla JavaScript",
+      "role": "Visual graph editor, monitoring, user control",
+      "location": "static/"
+    },
+    "backend": {
+      "technology": "Python + FastAPI + WebSocket",
+      "role": "AI processing, environment simulation, evolution",
+      "location": "start_server.py"
+    },
+    "communication": "WebSocket (ws://localhost:8000/ws)"
+  },
+  "genreg_model": {
+    "concept": "Two-layer AI architecture inspired by biological gene regulation",
+    "layers": {
+      "regulatory": {
+        "name": "Protein Network",
+        "purpose": "Process environmental signals into trust modifiers",
+        "components": ["SensorProtein", "TrendProtein", "ComparatorProtein", "IntegratorProtein", "GateProtein", "TrustModifierProtein"],
+        "output": "Trust delta (fitness signal)"
+      },
+      "functional": {
+        "name": "Controller Network",
+        "purpose": "Select actions based on input signals",
+        "architecture": "Feed-forward neural network (11 inputs -> 16 hidden -> 4 outputs)",
+        "output": "Action (0-3: up/down/left/right)"
+      }
+    },
+    "evolution": {
+      "method": "Trust-based selection with mutation",
+      "selection": "Top 20% survive, reproduce with mutation",
+      "inheritance": "Children inherit 50% of parent trust",
+      "mutation": "Gaussian noise on weights and protein parameters"
+    }
+  },
+  "node_types": {
+    "environment": ["Snake Environment", "Canvas Visualize", "Visualize (Pygame)"],
+    "proteins": ["Sensor", "Trend", "Comparator", "Integrator", "Gate", "Trust Modifier", "Trust Aggregator"],
+    "controller": ["Controller Input", "Controller Network"],
+    "evolution": ["Population Controller", "Mutator Controller", "Genome Builder", "Episode Runner", "Generation Manager"],
+    "utility": ["Chart Monitor", "Console Output", "Signal Inspector"]
+  },
+  "training_flow": {
+    "steps": [
+      "1. Genome Builder creates population of N genomes",
+      "2. Episode Runner starts episode for genome[0]",
+      "3. Snake Environment steps, outputs signals",
+      "4. Sensor proteins read signals",
+      "5. Protein cascade computes trust delta",
+      "6. Controller selects action from signals",
+      "7. Action feeds back to environment",
+      "8. When snake dies, Episode Runner finalizes, advances to next genome",
+      "9. After all genomes evaluated, Generation Manager triggers evolution",
+      "10. New population feeds back to Genome Builder, repeat"
+    ]
+  },
+  "files": {
+    "core_python": [
+      "start_server.py - FastAPI backend server",
+      "genreg_proteins.py - Protein class implementations",
+      "genreg_controller.py - Neural network controller",
+      "genreg_genome.py - Genome (proteins + controller + trust)",
+      "genreg_population.py - Population and evolution logic",
+      "nodes/envs/snake.py - Snake game environment"
+    ],
+    "core_javascript": [
+      "static/js/app.js - Main application, BackendConnection, ExecutionController",
+      "static/js/nodes/protein_nodes.js - Protein node definitions",
+      "static/js/nodes/environment_nodes.js - Snake and visualizer nodes",
+      "static/js/nodes/controller_nodes.js - Controller nodes",
+      "static/js/episode_runner.js - Episode and generation management",
+      "static/js/genome_controller.js - Genome builder/loader/saver"
+    ],
+    "templates": [
+      "snake_training_template.json - Pre-configured training graph"
+    ]
+  },
+  "future_plans": [
+    "Support for multiple environment types beyond Snake",
+    "Save/load trained populations",
+    "More protein types for complex regulatory networks",
+    "Distributed training across multiple processes",
+    "Real-time genome inspection and editing"
+  ]
+}

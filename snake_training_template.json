@@ -1,0 +1,275 @@
+{
+  "last_node_id": 0,
+  "last_link_id": 0,
+  "nodes": [
+    {
+      "id": "sensor-1",
+      "type": "proteins/sensor",
+      "pos": [50, 100],
+      "size": [210, 302],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {"name": "all_signals", "type": "object", "links": ["link-sensor-to-input"], "slot_index": 0},
+        {"name": "alive", "type": "signal", "links": null},
+        {"name": "dist_to_food", "type": "signal", "links": ["link-dist-to-trend"], "slot_index": 2},
+        {"name": "energy", "type": "signal", "links": null},
+        {"name": "food_dx", "type": "signal", "links": null},
+        {"name": "food_dy", "type": "signal", "links": null},
+        {"name": "food_x", "type": "signal", "links": null},
+        {"name": "food_y", "type": "signal", "links": null},
+        {"name": "head_x", "type": "signal", "links": null},
+        {"name": "head_y", "type": "signal", "links": null},
+        {"name": "near_wall", "type": "signal", "links": null},
+        {"name": "steps_alive", "type": "signal", "links": ["link-steps-to-trust2"], "slot_index": 11}
+      ],
+      "properties": {"auto_detect_env": true, "name": "sensor_1"},
+      "color": "#4A90E2",
+      "bgcolor": "#2C3E50"
+    },
+    {
+      "id": "trend-1",
+      "type": "proteins/trend",
+      "pos": [350, 50],
+      "size": [210, 58],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [{"name": "input", "type": "signal", "link": "link-dist-to-trend"}],
+      "outputs": [{"name": "output", "type": "signal", "links": ["link-trend-to-trust1"], "slot_index": 0}],
+      "properties": {"name": "trend_dist_food", "momentum": 0.9},
+      "color": "#E67E22",
+      "bgcolor": "#2C3E50"
+    },
+    {
+      "id": "trust-mod-1",
+      "type": "proteins/trust_modifier",
+      "pos": [620, 30],
+      "size": [210, 82],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [{"name": "input", "type": "signal", "link": "link-trend-to-trust1"}],
+      "outputs": [{"name": "trust", "type": "signal", "links": ["link-trust1-to-agg"], "slot_index": 0}],
+      "properties": {"name": "trust_closer", "gain": -1, "scale": 2},
+      "color": "#E74C3C",
+      "bgcolor": "#922B21",
+      "shape": 1
+    },
+    {
+      "id": "trust-mod-2",
+      "type": "proteins/trust_modifier",
+      "pos": [620, 150],
+      "size": [210, 82],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [{"name": "input", "type": "signal", "link": "link-steps-to-trust2"}],
+      "outputs": [{"name": "trust", "type": "signal", "links": ["link-trust2-to-agg"], "slot_index": 0}],
+      "properties": {"name": "trust_alive", "gain": 0.01, "scale": 1},
+      "color": "#E74C3C",
+      "bgcolor": "#922B21",
+      "shape": 1
+    },
+    {
+      "id": "trust-agg",
+      "type": "proteins/trust_aggregator",
+      "pos": [900, 50],
+      "size": [210, 238],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {"name": "trust_1", "type": "signal", "link": "link-trust1-to-agg"},
+        {"name": "trust_2", "type": "signal", "link": "link-trust2-to-agg"},
+        {"name": "trust_3", "type": "signal", "link": null},
+        {"name": "trust_4", "type": "signal", "link": null}
+      ],
+      "outputs": [
+        {"name": "trust_delta", "type": "number", "links": ["link-agg-to-episode"], "slot_index": 0},
+        {"name": "raw_sum", "type": "number", "links": null}
+      ],
+      "properties": {"aggregation_mode": "sum", "clamp_min": -5, "clamp_max": 5, "enable_clamping": true, "weights": [1, 1, 1, 1]},
+      "color": "#E74C3C",
+      "bgcolor": "#922B21"
+    },
+    {
+      "id": "controller-input",
+      "type": "controller/input",
+      "pos": [350, 300],
+      "size": [200, 80],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [{"name": "signals", "type": "*", "link": "link-sensor-to-input"}],
+      "outputs": [{"name": "input_vector", "type": "array", "links": ["link-input-to-network"], "slot_index": 0}],
+      "properties": {
+        "expected_size": 11,
+        "signal_order": ["steps_alive", "energy", "dist_to_food", "head_x", "head_y", "food_x", "food_y", "food_dx", "food_dy", "near_wall", "alive"]
+      },
+      "color": "#16A085",
+      "bgcolor": "#0E6655"
+    },
+    {
+      "id": "controller-network",
+      "type": "controller/network",
+      "pos": [620, 280],
+      "size": [220, 126],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [{"name": "input_vector", "type": "array", "link": "link-input-to-network"}],
+      "outputs": [
+        {"name": "action", "type": "number", "links": ["link-action-to-env"], "slot_index": 0},
+        {"name": "action_scores", "type": "array", "links": null}
+      ],
+      "properties": {"input_size": 11, "hidden_size": 16, "output_size": 4, "w1": [], "b1": [], "w2": [], "b2": [], "weights_loaded": false},
+      "color": "#2980B9",
+      "bgcolor": "#1F5F8B"
+    },
+    {
+      "id": "snake-env",
+      "type": "environment/snake",
+      "pos": [920, 300],
+      "size": [200, 100],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [{"name": "action", "type": "number", "link": "link-action-to-env"}],
+      "outputs": [
+        {"name": "signals", "type": "signal", "links": null},
+        {"name": "done", "type": "boolean", "links": ["link-env-done-to-episode"], "slot_index": 1}
+      ],
+      "properties": {"grid_size": 10, "episodes": 0, "current_score": 0, "best_score": 0, "alive": true},
+      "color": "#27AE60",
+      "bgcolor": "#1E5631"
+    },
+    {
+      "id": "pop-controller",
+      "type": "population/controller",
+      "pos": [50, 500],
+      "size": [210, 130],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "outputs": [{"name": "config", "type": "object", "links": ["link-pop-to-builder"], "slot_index": 0}],
+      "properties": {"population_size": 100, "elite_ratio": 0.2, "reproduction_ratio": 0.3, "cloning_ratio": 0.5},
+      "color": "#E67E22",
+      "bgcolor": "#9A5C23"
+    },
+    {
+      "id": "mut-controller",
+      "type": "mutator/controller",
+      "pos": [50, 670],
+      "size": [210, 106],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "outputs": [{"name": "config", "type": "object", "links": ["link-mut-to-builder"], "slot_index": 0}],
+      "properties": {
+        "base_mutation_rate": 0.1,
+        "mutation_scale": 0.3,
+        "trust_inheritance_rate": 0.5,
+        "bounds": {"gain": [-10, 10], "scale": [-10, 10], "decay": [0, 1], "momentum": [0, 1], "threshold": [-10, 10], "hysteresis": [0, 1]}
+      },
+      "color": "#8E44AD",
+      "bgcolor": "#5B2C6F"
+    },
+    {
+      "id": "genome-builder",
+      "type": "genome/builder",
+      "pos": [320, 550],
+      "size": [210, 146],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {"name": "pop_config", "type": "object", "link": "link-pop-to-builder"},
+        {"name": "mut_config", "type": "object", "link": "link-mut-to-builder"},
+        {"name": "population", "type": "object", "link": "link-gen-pop-to-builder"},
+        {"name": "advance", "type": "boolean", "link": "link-episode-done-to-builder"}
+      ],
+      "outputs": [
+        {"name": "genome", "type": "object", "links": ["link-genome-to-episode"], "slot_index": 0},
+        {"name": "pop_config", "type": "object", "links": ["link-builder-pop-to-episode", "link-builder-pop-to-gen"], "slot_index": 1},
+        {"name": "mut_config", "type": "object", "links": ["link-builder-mut-to-episode", "link-builder-mut-to-gen"], "slot_index": 2},
+        {"name": "genome_index", "type": "number", "links": null, "slot_index": 3}
+      ],
+      "properties": {"genome_name": "genome_1", "auto_build": true, "population_size": 100, "current_index": 0},
+      "color": "#16A085",
+      "bgcolor": "#0E6655"
+    },
+    {
+      "id": "episode-runner",
+      "type": "episode/runner",
+      "pos": [600, 500],
+      "size": [228, 258],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {"name": "trust_delta", "type": "number", "link": "link-agg-to-episode"},
+        {"name": "done", "type": "boolean", "link": "link-env-done-to-episode"},
+        {"name": "genome", "type": "object", "link": "link-genome-to-episode"},
+        {"name": "pop_config", "type": "object", "link": "link-builder-pop-to-episode"},
+        {"name": "mut_config", "type": "object", "link": "link-builder-mut-to-episode"}
+      ],
+      "outputs": [
+        {"name": "episode_results", "type": "object", "links": ["link-episode-to-gen"], "slot_index": 0},
+        {"name": "results", "type": "object", "links": null},
+        {"name": "episode_done", "type": "boolean", "links": ["link-episode-done-to-builder"], "slot_index": 2}
+      ],
+      "properties": {"name": "episode_runner_1", "current_episode": 0, "current_genome": 0, "backend_url": "ws://localhost:8000/ws", "auto_run": true, "max_steps": 200},
+      "color": "#16A085",
+      "bgcolor": "#0E6655"
+    },
+    {
+      "id": "gen-manager",
+      "type": "generation/manager",
+      "pos": [900, 500],
+      "size": [262, 266],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {"name": "episode_results", "type": "object", "link": "link-episode-to-gen"},
+        {"name": "pop_config", "type": "object", "link": "link-builder-pop-to-gen"},
+        {"name": "mut_config", "type": "object", "link": "link-builder-mut-to-gen"}
+      ],
+      "outputs": [
+        {"name": "evolution_stats", "type": "object", "links": null, "slot_index": 0},
+        {"name": "new_population", "type": "object", "links": ["link-gen-pop-to-builder"], "slot_index": 1}
+      ],
+      "properties": {"name": "generation_manager_1", "current_generation": 0, "population_size": 100, "genomes_completed": 0, "backend_url": "ws://localhost:8000/ws", "auto_evolve": true},
+      "color": "#8E44AD",
+      "bgcolor": "#5B2C6F"
+    }
+  ],
+  "links": [
+    ["link-sensor-to-input", "sensor-1", 0, "controller-input", 0, "object"],
+    ["link-dist-to-trend", "sensor-1", 2, "trend-1", 0, "signal"],
+    ["link-steps-to-trust2", "sensor-1", 11, "trust-mod-2", 0, "signal"],
+    ["link-trend-to-trust1", "trend-1", 0, "trust-mod-1", 0, "signal"],
+    ["link-trust1-to-agg", "trust-mod-1", 0, "trust-agg", 0, "signal"],
+    ["link-trust2-to-agg", "trust-mod-2", 0, "trust-agg", 1, "signal"],
+    ["link-agg-to-episode", "trust-agg", 0, "episode-runner", 0, "number"],
+    ["link-input-to-network", "controller-input", 0, "controller-network", 0, "array"],
+    ["link-action-to-env", "controller-network", 0, "snake-env", 0, "number"],
+    ["link-pop-to-builder", "pop-controller", 0, "genome-builder", 0, "object"],
+    ["link-mut-to-builder", "mut-controller", 0, "genome-builder", 1, "object"],
+    ["link-genome-to-episode", "genome-builder", 0, "episode-runner", 2, "object"],
+    ["link-builder-pop-to-episode", "genome-builder", 1, "episode-runner", 3, "object"],
+    ["link-builder-mut-to-episode", "genome-builder", 2, "episode-runner", 4, "object"],
+    ["link-builder-pop-to-gen", "genome-builder", 1, "gen-manager", 1, "object"],
+    ["link-builder-mut-to-gen", "genome-builder", 2, "gen-manager", 2, "object"],
+    ["link-episode-to-gen", "episode-runner", 0, "gen-manager", 0, "object"],
+    ["link-gen-pop-to-builder", "gen-manager", 1, "genome-builder", 2, "object"],
+    ["link-episode-done-to-builder", "episode-runner", 2, "genome-builder", 3, "boolean"],
+    ["link-env-done-to-episode", "snake-env", 1, "episode-runner", 1, "boolean"]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}
